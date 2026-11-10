@@ -158,3 +158,28 @@ void moveServo(uint8_t channel, int angle) {
   
   pwm.setPWM(channel, 0, tick);
 }
+
+
+Test: 
+#include <Wire.h>
+#include <Adafruit_PWMServoDriver.h>
+#include <Servo.h>
+// PCA9685 Objekt initialisieren (Standard-I2C-Adresse 0x40)
+int PWMMax = 550;
+int PWMMin = 100;
+
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+void setup() {
+  // put your setup code here, to run once:
+pwm.begin();
+pwm.setPWMFreq(50);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+pwm.setPWM(0,0,PWMMax);
+delay(1000);
+pwm.setPWM(0,0,PWMMin);
+delay(1000);
+
+}
