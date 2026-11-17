@@ -183,3 +183,14 @@ pwm.setPWM(0,0,PWMMin);
 delay(1000);
 
 }
+
+
+
+
+
+
+pwm stuff: 
+// Pulsweiten-Grenzen (in Mikrosekunden) für die Servos
+// PWMax auf 500 (bzw. anpassbar je nach Servo-Typ)
+const int PWM_MIN = 105; // Entspricht ca. 0 Grad
+const int PWM_MAX = 565; // Entspricht max. Pulsweite (hier auf 500 eingestellt, ggf. bis 2400 erweiterbar)
