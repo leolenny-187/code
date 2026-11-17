@@ -1,5 +1,3 @@
-# code
-pp
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
@@ -69,11 +67,11 @@ bool runRasterScan() {
 
     // Zick-Zack-Logik
     if (r % 2 == 0) {
-      for (int hAngle = 0; hAngle <= 180; hAngle += 15) {
+      for (int hAngle = 100; hAngle <= 280; hAngle += 15) {
         if (scanAndEngage(hAngle, vAngle)) return true; // Sofort abbrechen bei Treffer
       }
     } else {
-      for (int hAngle = 180; hAngle >= 0; hAngle -= 15) {
+      for (int hAngle = 280; hAngle >= 100; hAngle -= 15) {
         if (scanAndEngage(hAngle, vAngle)) return true; // Sofort abbrechen bei Treffer
       }
     }
@@ -124,7 +122,7 @@ long readDistanceCM() {
   digitalWrite(TRIG_PIN, LOW);
 
   long duration = pulseIn(ECHO_PIN, HIGH, 30000); // Timeout nach 30ms (~5m Max)
-  if (duration == 0) return 999;                  // Kein Echo empfangen
+  if (duration == 0) return 999;               // Kein Echo empfangen
 
   return duration * 0.0343 / 2;
 }
@@ -138,60 +136,10 @@ void fireMechanism() {
   delay(300);
 }
 
-
-
-Test: 
-#include <Wire.h>
-#include <Adafruit_PWMServoDriver.h>
-#include <Servo.h>
-// PCA9685 Objekt initialisieren (Standard-I2C-Adresse 0x40)
-int PWMMax = 550;
-int PWMMin = 100;
-
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-void setup() {
-  // put your setup code here, to run once:
-pwm.begin();
-pwm.setPWMFreq(50);
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-pwm.setPWM(0,0,PWMMax);
-delay(1000);
-pwm.setPWM(0,0,PWMMin);
-delay(1000);
-
-}
-
-
-
-
-
-
-pwm stuff: 
-// Pulsweiten-Grenzen (in Mikrosekunden) für die Servos
-// PWMax auf 500 (bzw. anpassbar je nach Servo-Typ)
-const int PWM_MIN = 105; // Entspricht ca. 0 Grad
-const int PWM_MAX = 565; // Entspricht max. Pulsweite (hier auf 500 eingestellt, ggf. bis 2400 erweiterbar)
-
-
-
-
-
-am Ende
-// Hilfsfunktion zur Steuerung der Servos über den PCA9685 mit konfigurierbarem PWM-Bereich
+// HIER WAR DER FEHLER: Die fehlende moveServo-Funktion wurde ergänzt
 void moveServo(uint8_t channel, int angle) {
-  // Begrenzung des Winkels auf 0 bis 180 Grad
-  angle = constrain(angle, 0, 180);
-  
-  // Mappt den Winkel (0-180) auf den gewünschten Pulsweitenbereich (PWM_MIN bis PWM_MAX)
-  int pulse = map(angle, 0, 180, PWM_MIN, PWM_MAX);
-  
-  // PCA9685 erwartet Ticks (0 bis 4095). Alternativ kann writeMicroseconds genutzt werden, 
-  // hier mappen wir direkt auf die Ticks für den 50Hz-Takt.
-  // 1 Sekunde = 20000 Mikrosekunden bei 50Hz -> 4096 Ticks = 20ms -> 1 Tick ≈ 4.88µs
-  int tick = map(pulse, 0, 20000, 0, 4095);
-  
-  pwm.setPWM(channel, 0, tick);
+  // Wandelt den Winkel (0 bis 180 Grad) in PCA9685 PWM-Pulse um 
+  // (Standard-Werte: 150 bis 600 Puls-Ticks für typische Servos)
+  int pulse = map(angle, 0, 180, 150, 600);
+  pwm.setPWM(channel, 0, pulse);
 }
