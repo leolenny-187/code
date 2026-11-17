@@ -11,21 +11,16 @@ const int TRIG_PIN = 2;
 const int ECHO_PIN = 3;
 
 // Kanal-Definitionen auf dem PCA9685 Servotreiber
-const int CH_RADAR_PAN     = 1;
-const int CH_RADAR_TILT    = 4;
-const int CH_LAUNCHER_PAN  = 5;
-const int CH_LAUNCHER_TILT = 9;
-const int CH_TRIGGER       = 13;
+const int CH_RADAR_PAN     = 0;
+const int CH_RADAR_TILT    = 3;
+const int CH_LAUNCHER_PAN  = 4;
+const int CH_LAUNCHER_TILT = 8;
+const int CH_TRIGGER       = 12;
 
 // Parameter & Schwellenwerte
 const int TARGET_THRESHOLD_CM = 50;  // Auf 50 cm angepasst
-const int TRIGGER_REST_POS    = 0;   // Ruheposition des Auslöse-Servos
-const int TRIGGER_PULL_POS    = 90;  // Zugposition des Auslöse-Servos
-
-// Pulsweiten-Grenzen (in Mikrosekunden) für die Servos
-// PWMax auf 500 (bzw. anpassbar je nach Servo-Typ)
-const int PWM_MIN = 150; // Entspricht ca. 0 Grad
-const int PWM_MAX = 500; // Entspricht max. Pulsweite (hier auf 500 eingestellt, ggf. bis 2400 erweiterbar)
+const int TRIGGER_REST_POS    = 105;   // Ruheposition des Auslöse-Servos
+const int TRIGGER_PULL_POS    = 575;  // Zugposition des Auslöse-Servos
 
 // Funktionsprototypen
 bool scanAndEngage(int targetPanAngle, int targetTiltAngle);
@@ -47,10 +42,10 @@ void setup() {
 
   // Grundstellung anfahren
   moveServo(CH_TRIGGER, TRIGGER_REST_POS);
-  moveServo(CH_RADAR_TILT, 90);    // Waagerecht
-  moveServo(CH_LAUNCHER_TILT, 90); // Waagerecht
-  moveServo(CH_RADAR_PAN, 90);     // Zentriert
-  moveServo(CH_LAUNCHER_PAN, 90);  // Zentriert
+  moveServo(CH_RADAR_TILT, 100);    // Waagerecht
+  moveServo(CH_LAUNCHER_TILT, 100); // Waagerecht
+  moveServo(CH_RADAR_PAN, 100);     // Zentriert
+  moveServo(CH_LAUNCHER_PAN, 100);  // Zentriert
 
   delay(1000);
   Serial.println("System mit PCA9685 bereit. Starte Umgebungsscan...");
@@ -65,7 +60,7 @@ void loop() {
 
 // Funktion für den vollständigen Raster-Durchlauf
 bool runRasterScan() {
-  int verticalSteps[] = {90, 100, 110, 120, 130, 140, 150, 160}; // Vertikale Zeilen
+  int verticalSteps[] = {100, 110, 120, 130, 140, 150, 160, 170}; // Vertikale Zeilen
   int numRows = 8;
 
   // Schleife durch alle vertikalen Zeilen
@@ -143,21 +138,6 @@ void fireMechanism() {
   delay(300);
 }
 
-// Hilfsfunktion zur Steuerung der Servos über den PCA9685 mit konfigurierbarem PWM-Bereich
-void moveServo(uint8_t channel, int angle) {
-  // Begrenzung des Winkels auf 0 bis 180 Grad
-  angle = constrain(angle, 0, 180);
-  
-  // Mappt den Winkel (0-180) auf den gewünschten Pulsweitenbereich (PWM_MIN bis PWM_MAX)
-  int pulse = map(angle, 0, 180, PWM_MIN, PWM_MAX);
-  
-  // PCA9685 erwartet Ticks (0 bis 4095). Alternativ kann writeMicroseconds genutzt werden, 
-  // hier mappen wir direkt auf die Ticks für den 50Hz-Takt.
-  // 1 Sekunde = 20000 Mikrosekunden bei 50Hz -> 4096 Ticks = 20ms -> 1 Tick ≈ 4.88µs
-  int tick = map(pulse, 0, 20000, 0, 4095);
-  
-  pwm.setPWM(channel, 0, tick);
-}
 
 
 Test: 
@@ -194,3 +174,24 @@ pwm stuff:
 // PWMax auf 500 (bzw. anpassbar je nach Servo-Typ)
 const int PWM_MIN = 105; // Entspricht ca. 0 Grad
 const int PWM_MAX = 565; // Entspricht max. Pulsweite (hier auf 500 eingestellt, ggf. bis 2400 erweiterbar)
+
+
+
+
+
+am Ende
+// Hilfsfunktion zur Steuerung der Servos über den PCA9685 mit konfigurierbarem PWM-Bereich
+void moveServo(uint8_t channel, int angle) {
+  // Begrenzung des Winkels auf 0 bis 180 Grad
+  angle = constrain(angle, 0, 180);
+  
+  // Mappt den Winkel (0-180) auf den gewünschten Pulsweitenbereich (PWM_MIN bis PWM_MAX)
+  int pulse = map(angle, 0, 180, PWM_MIN, PWM_MAX);
+  
+  // PCA9685 erwartet Ticks (0 bis 4095). Alternativ kann writeMicroseconds genutzt werden, 
+  // hier mappen wir direkt auf die Ticks für den 50Hz-Takt.
+  // 1 Sekunde = 20000 Mikrosekunden bei 50Hz -> 4096 Ticks = 20ms -> 1 Tick ≈ 4.88µs
+  int tick = map(pulse, 0, 20000, 0, 4095);
+  
+  pwm.setPWM(channel, 0, tick);
+}
